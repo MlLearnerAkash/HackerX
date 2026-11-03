@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>HackerX</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --fg: #0f1419;
+        --dim: #536471;
+        --line: #eff3f4;
+        --accent: #ff6600;
+        --field: #f7f9f9;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #000000;
+          --fg: #e7e9ea;
+          --dim: #71787d;
+          --line: #2f3336;
+          --field: #16181c;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        width: 296px;
+        padding: 14px;
+        background: var(--bg);
+        color: var(--fg);
+        font: 13px/1.4 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+      .logo {
+        width: 22px; height: 22px; border-radius: 6px; background: var(--accent);
+        color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 13px;
+      }
+      h1 { font-size: 14px; margin: 0; letter-spacing: -0.01em; }
+      p.lede { color: var(--dim); margin: 0 0 12px; font-size: 12px; }
+      label { display: block; margin-bottom: 10px; }
+      .label-row { display: flex; justify-content: space-between; align-items: baseline; }
+      .label-row span { color: var(--dim); }
+      input[type="number"], select {
+        width: 100%;
+        margin-top: 4px;
+        padding: 6px 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--field);
+        color: var(--fg);
+        font: inherit;
+      }
+      .check { display: flex; gap: 8px; align-items: flex-start; }
+      .check input { margin: 2px 0 0; accent-color: var(--accent); }
+      .check small { display: block; color: var(--dim); }
+      hr { border: 0; border-top: 1px solid var(--line); margin: 12px 0; }
+      #status { color: var(--accent); font-size: 12px; min-height: 15px; }
+      footer { color: var(--dim); font-size: 11px; margin-top: 6px; }
+      a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Y</div>
+      <h1>HackerX</h1>
+    </header>
+    <p class="lede">Hacker News topics, newest first, docked on x.com.</p>
+
+    <label>
+      <span class="label-row">Minimum points <span id="pts-hint">150</span></span>
+      <input id="minPoints" type="number" min="0" max="5000" step="50" />
+    </label>
+
+    <label>
+      <span class="label-row">Topics in the dock <span></span></span>
+      <input id="maxTopics" type="number" min="3" max="40" step="1" />
+    </label>
+
+    <label>
+      <span class="label-row">Default order <span></span></span>
+      <select id="sort">
+        <option value="new">Newest HN post first</option>
+        <option value="top">Most points first</option>
+      </select>
+    </label>
+
+    <label>
+      <span class="label-row">Dock side <span></span></span>
+      <select id="side">
+        <option value="right">Right</option>
+        <option value="left">Left</option>
+      </select>
+    </label>
+
+    <hr />
+
+    <label class="check">
+      <input id="highlight" type="checkbox" />
+      <span>
+        Badge matching timeline posts
+        <small>Adds an “HN · N pts” chip to posts that match a live topic.</small>
+      </span>
+    </label>
+
+    <div id="status"></div>
+    <footer>Data: <a href="https://news.ycombinator.com/" target="_blank" rel="noopener">Hacker News</a> via the Algolia API. Reload x.com after changing the side.</footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

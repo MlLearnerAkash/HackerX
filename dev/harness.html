@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HackerX dev harness</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #000;
+        color: #e7e9ea;
+        font: 15px/1.4 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .notice {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        padding: 8px 16px;
+        background: rgba(255, 102, 0, 0.14);
+        border-bottom: 1px solid #2f3336;
+        color: #ff9c5b;
+        font-size: 12px;
+      }
+      .notice code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+        border-left: 1px solid #2f3336;
+        border-right: 1px solid #2f3336;
+        min-height: 100vh;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+        padding: 14px 16px;
+        border-bottom: 1px solid #2f3336;
+      }
+      article[data-testid="tweet"] {
+        display: flex;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #2f3336;
+      }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        background: #2f3336;
+        flex: none;
+      }
+      .who {
+        color: #71787d;
+        font-size: 14px;
+      }
+      .who b {
+        color: #e7e9ea;
+        font-weight: 700;
+      }
+      [data-testid="tweetText"] {
+        margin-top: 2px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="notice">
+      Fake x.com timeline — a stand-in so the HackerX dock can be exercised without a
+      logged-in session. Dock markup comes from <code>src/content/ui.js</code>; topic
+      clicks are intercepted and logged to the console instead of navigating.
+    </div>
+    <main>
+      <h1>Home</h1>
+
+      <article data-testid="tweet">
+        <div class="avatar"></div>
+        <div>
+          <div class="who"><b>Pretend User</b> @pretend · 2h</div>
+          <div data-testid="tweetText">Pretend post one — the real timeline lives behind this page.</div>
+        </div>
+      </article>
+
+      <article data-testid="tweet">
+        <div class="avatar"></div>
+        <div>
+          <div class="who"><b>Pretend User</b> @pretend · 3h</div>
+          <div data-testid="tweetText">Pretend post two — the dock floats above it.</div>
+        </div>
+      </article>
+
+      <article data-testid="tweet">
+        <div class="avatar"></div>
+        <div>
+          <div class="who"><b>Match Test</b> @match · 4h</div>
+          <div data-testid="tweetText">Astra can read and write weights to improve Qwen — this sentence should pick up an “HN · N pts” badge if that story is on the front page.</div>
+        </div>
+      </article>
+    </main>
+
+    <script src="../src/content/ui.js"></script>
+  </body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HackerX — Hacker News topics on x.com</title>
+    <meta
+      name="description"
+      content="A Chrome extension that docks the Hacker News front page onto x.com, newest first, and jumps straight to the live posts for each topic."
+    />
+    <meta name="theme-color" content="#0b0b0d" />
+    <meta property="og:title" content="HackerX — Hacker News topics on x.com" />
+    <meta
+      property="og:description"
+      content="A Chrome extension that docks the Hacker News front page onto x.com, newest first, and jumps straight to the live posts for each topic."
+    />
+    <meta property="og:image" content="screenshot.png" />
+    <link rel="icon" href="icon.png" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0b0d;
+        --panel: #131317;
+        --line: #26262c;
+        --fg: #ececf1;
+        --dim: #9b9ba4;
+        --accent: #ff6600;
+        --accent-soft: rgba(255, 102, 0, 0.12);
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 0;
+      }
+      .mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+        font-size: 15px;
+        flex: none;
+      }
+      .name {
+        font-weight: 750;
+        letter-spacing: -0.02em;
+        font-size: 17px;
+      }
+      nav .spacer {
+        flex: 1;
+      }
+      nav a.link {
+        color: var(--dim);
+        font-size: 14px;
+        font-weight: 500;
+      }
+      nav a.link:hover {
+        color: var(--fg);
+        text-decoration: none;
+      }
+
+      header.hero {
+        padding: 56px 0 8px;
+        text-align: center;
+      }
+      h1 {
+        font-size: clamp(34px, 6vw, 56px);
+        line-height: 1.06;
+        letter-spacing: -0.035em;
+        margin: 0 0 18px;
+        font-weight: 800;
+      }
+      h1 em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .sub {
+        font-size: clamp(16px, 2.2vw, 19px);
+        color: var(--dim);
+        max-width: 620px;
+        margin: 0 auto 28px;
+      }
+      .cta {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 20px;
+        border-radius: 999px;
+        font-weight: 650;
+        font-size: 15px;
+        border: 1px solid transparent;
+      }
+      .btn.primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn.primary:hover {
+        background: #ff7a1f;
+        text-decoration: none;
+      }
+      .btn.ghost {
+        border-color: var(--line);
+        color: var(--fg);
+        background: var(--panel);
+      }
+      .btn.ghost:hover {
+        border-color: #3a3a42;
+        text-decoration: none;
+      }
+      .shot {
+        margin: 46px 0 0;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+        background: #000;
+      }
+      .shot img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .shot figcaption {
+        padding: 10px 16px;
+        color: var(--dim);
+        font-size: 13px;
+        border-top: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      section {
+        padding: 72px 0 0;
+      }
+      h2 {
+        font-size: 26px;
+        letter-spacing: -0.02em;
+        margin: 0 0 8px;
+      }
+      .lede {
+        color: var(--dim);
+        margin: 0 0 28px;
+        max-width: 640px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+        gap: 14px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px 20px;
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 15px;
+        letter-spacing: -0.01em;
+      }
+      .card p {
+        margin: 0;
+        color: var(--dim);
+        font-size: 14px;
+      }
+      .card .tag {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border-radius: 999px;
+        padding: 2px 9px;
+        margin-bottom: 10px;
+      }
+
+      ol.steps {
+        counter-reset: step;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+      ol.steps li {
+        counter-increment: step;
+        position: relative;
+        padding: 14px 18px 14px 56px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        color: var(--dim);
+      }
+      ol.steps li b {
+        color: var(--fg);
+        display: block;
+        margin-bottom: 2px;
+      }
+      ol.steps li::before {
+        content: counter(step);
+        position: absolute;
+        left: 18px;
+        top: 15px;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 13px;
+        display: grid;
+        place-items: center;
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.92em;
+        background: #1c1c22;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 1px 6px;
+      }
+      pre {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 18px;
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.5;
+        color: #d8d8de;
+      }
+      pre code {
+        background: none;
+        border: 0;
+        padding: 0;
+        font-size: inherit;
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 18px;
+        align-items: start;
+      }
+      @media (max-width: 760px) {
+        .split {
+          grid-template-columns: 1fr;
+        }
+        header.hero {
+          padding-top: 32px;
+        }
+      }
+      footer {
+        margin-top: 80px;
+        border-top: 1px solid var(--line);
+        padding: 24px 0 40px;
+        color: var(--dim);
+        font-size: 13px;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <nav>
+        <div class="mark">Y</div>
+        <div class="name">HackerX</div>
+        <div class="spacer"></div>
+        <a class="link" href="#install">Install</a>
+        <a class="link" href="#how">How it works</a>
+        <a class="link" href="https://github.com/MlLearnerAkash/HackerX">GitHub</a>
+      </nav>
+
+      <header class="hero">
+        <h1>Hacker News, docked<br />on your <em>x.com</em> timeline.</h1>
+        <p class="sub">
+          A Chrome extension that puts the Hacker News front page beside your feed — newest first —
+          and opens the live X posts for any topic in one click.
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="#install">Install the extension</a>
+          <a class="btn ghost" href="https://github.com/MlLearnerAkash/HackerX">View source</a>
+        </div>
+
+        <figure class="shot">
+          <img src="screenshot.png" alt="The HackerX dock on an x.com timeline, listing Hacker News stories with points and comment counts." />
+          <figcaption>
+            The dock on x.com: HN stories ranked newest first, with points, comments and age. A matching
+            post in the timeline carries an <b>HN · 2.7k pts</b> chip.
+          </figcaption>
+        </figure>
+      </header>
+
+      <section id="features">
+        <h2>What it does</h2>
+        <p class="lede">
+          Hacker News is the highest-signal filter on the web. x.com is where the argument happens. This
+          connects the two without scraping either one.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <span class="tag">Ordering</span>
+            <h3>Newest first, like x.com</h3>
+            <p>
+              Rows sort by HN post time by default, and each one opens
+              <code>/search?f=live</code> — X's own live tab, its native renderer, its native order.
+            </p>
+          </div>
+          <div class="card">
+            <span class="tag">Speed</span>
+            <h3>One click to the thread</h3>
+            <p>
+              Titles are reduced to a 2–3 term X query by a deterministic scorer that keeps versions,
+              <code>C++</code>-style operators and proper nouns.
+            </p>
+          </div>
+          <div class="card">
+            <span class="tag">Context</span>
+            <h3>Badges on your timeline</h3>
+            <p>
+              Posts that match a live topic get a small <b>HN · N pts</b> chip linking to that search.
+              Toggle it off in the popup.
+            </p>
+          </div>
+          <div class="card">
+            <span class="tag">Control</span>
+            <h3>Filter, sort, move, hide</h3>
+            <p>
+              Filter the list, switch to most-points order, drag the dock off the trends column,
+              double-click to snap back, or Escape to hide it.
+            </p>
+          </div>
+          <div class="card">
+            <span class="tag">Privacy</span>
+            <h3>No X API, no account access</h3>
+            <p>
+              Nothing is read from your account and no x.com endpoint is called. The only network
+              request is to the public Hacker News API.
+            </p>
+          </div>
+          <div class="card">
+            <span class="tag">Build</span>
+            <h3>No build step</h3>
+            <p>
+              Plain ES modules and one classic content script. Load the folder unpacked and it runs;
+              <code>dev/harness.html</code> exercises it without a login.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>Install</h2>
+        <p class="lede">Chrome, Brave or Edge. Takes about twenty seconds.</p>
+        <div class="split">
+          <ol class="steps">
+            <li>
+              <b>Get the code</b>
+              Clone the repo, or download the ZIP and unzip it.
+            </li>
+            <li>
+              <b>Open the extensions page</b>
+              Go to <code>chrome://extensions</code> and switch on <b>Developer mode</b>.
+            </li>
+            <li>
+              <b>Load it</b>
+              Click <b>Load unpacked</b> and select the <code>HackerX</code> folder.
+            </li>
+            <li>
+              <b>Reload x.com</b>
+              The dock appears top-right. Pin the extension to reach the settings popup.
+            </li>
+          </ol>
+          <div>
+            <pre><code>git clone https://github.com/MlLearnerAkash/HackerX.git
+cd HackerX
+
+# then: chrome://extensions → Developer mode
+#       → Load unpacked → choose this folder</code></pre>
+            <div class="card" style="margin-top: 18px">
+              <h3>Settings</h3>
+              <p>
+                Minimum points, how many topics to show, default order, which side the dock starts on,
+                and whether timeline badges are on. Changes apply to open x.com tabs immediately.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how">
+        <h2>How it works</h2>
+        <p class="lede">
+          The service worker is the only component that touches the network. Results are cached for five
+          minutes, so repeated x.com navigations cost one request.
+        </p>
+        <pre><code>x.com content script   src/content/ui.js
+        │  chrome.runtime.sendMessage
+        ▼
+service worker         src/background/service-worker.js
+        │  5-minute cache in chrome.storage.local
+        ▼
+Hacker News Algolia API → src/lib/hn.js      normalise stories
+        │
+        ▼
+src/lib/topics.js       title → X search query
+        │
+        ▼
+x.com/search?q=…&amp;f=live   →  X renders the posts itself</code></pre>
+        <div class="grid" style="margin-top: 18px">
+          <div class="card">
+            <h3>Deterministic queries</h3>
+            <p>
+              <code>Show HN:</code> prefixes and trailing publication names are stripped, stopwords and
+              generic tech words are dropped, then the remaining terms are scored. Hover any row to see
+              the exact query.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Style-isolated dock</h3>
+            <p>
+              The panel lives in a shadow root, so x.com's stylesheet cannot reach it and it cannot
+              restyle x.com.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Additive badges</h3>
+            <p>
+              Timeline decoration only ever inserts a chip after the post text. It never reorders,
+              rewrites or removes anything X rendered.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Built with the public <a href="https://hn.algolia.com/api">Hacker News API</a>. Not affiliated with X or Y Combinator.</span>
+        <span><a href="https://github.com/MlLearnerAkash/HackerX">Source</a> · MIT-style, fork freely</span>
+      </footer>
+    </div>
+  </body>
+</html>
