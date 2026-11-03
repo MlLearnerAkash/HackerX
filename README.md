@@ -1,5 +1,7 @@
 # HackerX
 
+**Site: [mllearnerakash.github.io/HackerX](https://mllearnerakash.github.io/HackerX/)**
+
 A Chrome extension that docks a panel on x.com listing **what Hacker News is talking about right now**, newest first. Each row opens X's own live search for that topic, so the posts you land on are native x.com results, ordered newest first (`f=live`).
 
 ## Install
